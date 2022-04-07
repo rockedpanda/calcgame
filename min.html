@@ -82,6 +82,7 @@
             <div class="btn" v-for="(item,i) in items" @click="check(item)">{{item}}</div>
             <div class="btn" style="background-color: aquamarine;" @click="next">下一题</div>
         </div>
+        <audio id="audio" ref="audio" style="display:none;"></audio>
     </div>
 </body>
 <script>
@@ -93,7 +94,9 @@
                 b: 1,
                 c: '',
                 items: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-                right: false
+                right: false,
+                start:0,
+                correctCount:0
             };
         },
         methods: {
@@ -105,15 +108,33 @@
                 let ans = +(this.c);
                 if (this.a - this.b == ans) {
                     this.right = true;
+                    this.correctCount++;
                 } else {
                     this.right = false;
+                    this.correctCount = 0;
                 }
+                let type = 'wrong';
+                if(this.right){
+                    if(this.correctCount==5){
+                        type='good';
+                        this.correctCount = 0;
+                    }else{
+                        type ='correct';
+                    }
+                }
+                window.result && window.result.add(this.a+'-'+this.b+'='+this.c,this.start,this.right);
+                window.audio && window.audio.play(this.$refs.audio, type);
             },
             next: function () {
+                this.start = Date.now();
                 this.a = ((Math.random() * 8) >> 0) + 2;
                 this.b = (Math.random() * (this.a) >> 0);
                 this.c = '';
             }
+        },
+        mounted:function() {
+            this.next();
+            window.audio && window.audio.init(this.$refs.audio);
         },
         computed: {
             ansStyle: function () {
