@@ -48,3 +48,12 @@
     align-items: center;
     justify-content: center;
 }
+
+#history{
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 2;
+}

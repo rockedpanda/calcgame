@@ -27,5 +27,12 @@ window.result = {
       // str: str,
       // isCorrect: isCorrect
     }); */
+  },
+  getAll:function(){
+    let d = (localStorage.getItem('results')||'').split(';').map(x=>x.split(','));
+    return d;
+  },
+  clearAll:function(){
+    localStorage.setItem('results','');
   }
 }

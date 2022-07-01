@@ -1,0 +1,172 @@
+﻿<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>20以内加减法</title>
+    <script src="js/vue.min.js"></script>
+    <script src="js/audio.js"></script>
+    <link rel="stylesheet" href="css/cssreset.css" />
+    <link rel="stylesheet" href="css/index.css" />
+    <style>
+        #main {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+        }
+
+        #top {
+            width: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 30vh;
+            background-color: rgba(125, 0, 0, 0.1);
+            font-size: 10vw;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #middle {
+            width: 100%;
+            text-align: center;
+            position: absolute;
+            left: 0;
+            top: 30vh;
+            height: 20vh;
+            font-size: 10vw;
+            background-color: rgba(0, 125, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #bottom {
+            width: 100%;
+            position: absolute;
+            left: 0;
+            top: 50vh;
+            height: 50vh;
+            font-size: 6vw;
+            background-color: rgba(0, 0, 125, 0.1);
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+
+        #bottom .btn {
+            width: 18vw;
+            text-align: center;
+            border: 1px solid red;
+            border-radius: 6px;
+            background-color: rgba(255, 0, 0, 0.1);
+            height: 10vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 1vw;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="main">
+        <div class="btn" id="history" @click="history">★</div>
+        <div id="top">
+            {{a}} {{type}} {{b}} =
+        </div>
+        <div id="middle" :style="ansStyle">{{c}} <span v-show="c!=''">{{right?' 对':' 错'}}</span></div>
+        <div id="bottom">
+            <div class="btn" v-for="(item,i) in items" @click="check(item)">{{item}}</div>
+            <div class="btn" style="background-color: aquamarine;" @click="next">下一题</div>
+        </div>
+        <audio id="audio" ref="audio" style="display:none;"></audio>
+    </div>
+</body>
+<script>
+    var vm = new Vue({
+        el: '#main',
+        data: function () {
+            return {
+                type:'+',
+                a: 2,
+                b: 1,
+                c: '',
+                items: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,12,13,14,15,16,17,18,19,20],
+                right: false,
+                start:0,
+                correctCount:0
+            };
+        },
+        methods: {
+            check: function (item) {
+                this.c = item + '';
+                this.checkAns();
+            },
+            checkAns: function () {
+                let ans = +(this.c);
+                if (this.type=='-' && this.a - this.b == ans) {
+                    this.right = true;
+                    this.correctCount++;
+                } else if (this.type=='+' && this.a + this.b == ans) {
+                    this.right = true;
+                    this.correctCount++;
+                } else {
+                    this.right = false;
+                    this.correctCount = 0;
+                }
+                let type = 'wrong';
+                if(this.right){
+                    if(this.correctCount==5){
+                        type='good';
+                        this.correctCount = 0;
+                    }else{
+                        type ='correct';
+                    }
+                }
+                window.result && window.result.add(this.a+this.type+this.b+'='+this.c,this.start,this.right);
+                window.audio && window.audio.play(this.$refs.audio, type);
+            },
+            next: function () {
+                this.start = Date.now();
+                this.type = Math.random()>0.6?'+':'-';
+                if(this.type=='-'){
+                    this.a = ((Math.random() * 18) >> 0) + 2;
+                    this.b = (Math.random() * (this.a) >> 0);
+                }else{
+                    this.a = ((Math.random() * 19) >> 0) + 1;
+                    this.b = (1 + (Math.random() * (19 - this.a) >> 0));
+                }
+                this.c = '';
+            },
+            history:function(){
+                window.location.href="./history.html";
+            }
+        },
+        mounted:function() {
+            this.next();
+            window.audio && window.audio.init(this.$refs.audio);
+        },
+        computed: {
+            ansStyle: function () {
+                if (!this.c) {
+                    return {};
+                }
+                if (this.right) {
+                    return {
+                        color: 'green'
+                    };
+                } else {
+                    return {
+                        color: 'red'
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+</html>
